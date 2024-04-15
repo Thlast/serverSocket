@@ -2,9 +2,9 @@
     "name": "serverSocket",
     "version": "1.0.0",
     "description": "socket para tictactoe",
-    "main": "index.js",
+    "main": "serverSocket.js", 
     "scripts": {
-        "start": "node index.js"
+        "start": "node serverSocket.js"
     },
     "author": "Thlast",
     "license": "MIT",
