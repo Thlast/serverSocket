@@ -1,20 +1,11 @@
 const express = require("express");
-const http = require("http");
-const serverless = require("serverless-http");
+const http = require("http"); // Importa el módulo http
 const socketIo = require("socket.io");
 const cors = require("cors");
 
-const router = express.Router();
-
 const app = express();
-//const server = http.createServer(app);
-const server = app.listen(process.env.PORT || 4000, () => {
-    console.log(`Server running`);
-});
-
-const io = socketIo(server);
-
-//const PORT = process.env.PORT || 4000;
+const server = http.createServer(app); // Crea un servidor HTTP utilizando Express
+const io = socketIo(server); // Pasa el servidor HTTP a socket.io
 
 app.get("/", (req, res) => {
     res.send("api socket");
@@ -105,12 +96,7 @@ function calculateWinner(squares) {
     return null;
 }
 
-// Montar el router en la ruta /api
-app.use("/api", router);
-
-// Convertir la app a una función serverless
-module.exports.handler = serverless(app);
-
-// server.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
