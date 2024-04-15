@@ -1,11 +1,13 @@
 const express = require("express");
-const http = require("http"); // Importa el módulo http
 const socketIo = require("socket.io");
 const cors = require("cors");
 
 const app = express();
-const server = http.createServer(app); // Crea un servidor HTTP utilizando Express
-const io = socketIo(server); // Pasa el servidor HTTP a socket.io
+const server = require('http').Server(app); // Crear un servidor HTTP usando Express
+
+const io = socketIo(server);
+
+const PORT = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
     res.send("api socket");
@@ -96,7 +98,6 @@ function calculateWinner(squares) {
     return null;
 }
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
