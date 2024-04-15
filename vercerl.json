@@ -4,7 +4,7 @@
       { "src": "serverSocket.js", "use": "@now/node-server" }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "/serverSocket.js" }
+      { "src": "/", "dest": "/serverSocket.js" }
     ]
   }
   
