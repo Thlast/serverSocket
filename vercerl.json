@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "builds": [
+      { "src": "serverSocket.js", "use": "@now/node-server" }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/serverSocket.js" }
+    ]
+  }
+  

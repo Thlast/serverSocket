@@ -14,7 +14,7 @@ const server = app.listen(process.env.PORT || 4000, () => {
 
 const io = socketIo(server);
 
-const PORT = process.env.PORT || 4000;
+//const PORT = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
     res.send("api socket");
