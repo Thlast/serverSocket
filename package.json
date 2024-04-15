@@ -2,12 +2,9 @@
     "name": "serversocket",
     "version": "1.0.0",
     "description": "socket para tictactoe",
-    "main": "index.js", 
+    "main": "./index.js", 
     "scripts": {
-        "start": "node index.js"
-    },
-        "engines": {
-      "node": "18.x"
+        "start": "node ./index.js"
     },
     "author": "Thlast",
     "license": "MIT",
