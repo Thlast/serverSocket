@@ -1,10 +1,17 @@
 const express = require("express");
 const http = require("http");
+const serverless = require("serverless-http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 
+const router = express.Router();
+
 const app = express();
-const server = http.createServer(app);
+//const server = http.createServer(app);
+const server = app.listen(process.env.PORT || 4000, () => {
+    console.log(`Server running`);
+});
+
 const io = socketIo(server);
 
 const PORT = process.env.PORT || 4000;
@@ -14,6 +21,8 @@ let xIsNext = true;
 let connectedPlayers = 0;
 
 app.use(cors());
+
+
 
 io.on("connection", (socket) => {
     console.log("A user connected");
@@ -94,6 +103,12 @@ function calculateWinner(squares) {
     return null;
 }
 
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Montar el router en la ruta /api
+app.use("/api", router);
+
+// Convertir la app a una función serverless
+module.exports.handler = serverless(app);
+
+// server.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });
