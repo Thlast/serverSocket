@@ -1,0 +1,17 @@
+{
+    "name": "serverSocket",
+    "version": "1.0.0",
+    "description": "socket para tictactoe",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "author": "Thlast",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.17.1",
+      "socket.io": "^4.3.1",
+      "cors": "^2.8.5"
+    }
+  }
+  
