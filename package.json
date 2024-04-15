@@ -2,9 +2,9 @@
     "name": "serversocket",
     "version": "1.0.0",
     "description": "socket para tictactoe",
-    "main": "serverSocket.js", 
+    "main": "src/serverSocket.js", 
     "scripts": {
-        "start": "node serverSocket.js"
+        "start": "node src/serverSocket.js"
     },
         "engines": {
       "node": "18.x"
