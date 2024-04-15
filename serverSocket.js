@@ -16,13 +16,15 @@ const io = socketIo(server);
 
 const PORT = process.env.PORT || 4000;
 
+app.get("/", (req, res) => {
+    res.send("api socket");
+});
+
 let history = [Array(9).fill(null)];
 let xIsNext = true;
 let connectedPlayers = 0;
 
 app.use(cors());
-
-
 
 io.on("connection", (socket) => {
     console.log("A user connected");
