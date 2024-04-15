@@ -57,6 +57,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+app.get("/", (req, res) => {
+    res.send("api socket");
+});
+
+
 const PORT = process.env.PORT || 4000;
 
 let history = [Array(9).fill(null)];
