@@ -21,18 +21,20 @@ let playerMoves = {
     'X': [],
     'O': []
 };
+let chatMessages = [];
 
 app.use(cors());
 
 io.on("connection", (socket) => {
     console.log("A user connected");
 
+    
     if (connectedPlayers >= 2) {
         console.log("Max players reached, disconnecting");
         socket.disconnect();
         return;
     }
-
+    
     connectedPlayers++;
     let playerType = connectedPlayers === 1 ? 'X' : 'O';
     if (connectedPlayers === 2 && players.length > 0 && players[0].player === playerType) {
@@ -40,11 +42,22 @@ io.on("connection", (socket) => {
     }
     socket.player = playerType;
     console.log(`Player ${socket.player} connected`);
-
+    
     players.push({ id: socket.id, player: playerType });
-
+    
     socket.emit("init", { history, xIsNext, player: socket.player });
+    
 
+
+    ////CHAT
+    socket.on("mensaje", (mensaje) => {
+        console.log("Mensaje recibido:", mensaje);
+        chatMessages.push({ jugador: socket.player, mensaje });
+        io.emit("mensaje", { jugador: socket.player, mensaje });
+    });
+    
+
+    ////MOVIMIENTOS Y JUEGO
     socket.on("move", (i) => {
         console.log("Movimiento recibido desde el cliente:", i);
         const current = [...history[history.length - 1]]; // Clonar el último tablero
