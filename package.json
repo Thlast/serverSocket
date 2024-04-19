@@ -4,7 +4,8 @@
     "description": "socket para tictactoe",
     "main": "./index.js", 
     "scripts": {
-        "start": "node ./index.js"
+        "start": "node ./index.js",
+        "build": "npm install --legacy-peer-deps"
     },
     "author": "Thlast",
     "license": "MIT",

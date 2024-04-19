@@ -1,53 +1,3 @@
-// const express = require("express");
-// const http = require("http");
-// const WebSocket = require("ws");
-// const cors = require("cors");
-
-// const app = express();
-// const server = http.createServer(app);
-// const wss = new WebSocket.Server({ server });
-
-// const PORT = process.env.PORT || 4000;
-
-// app.get("/", (req, res) => {
-//     res.send("api socket");
-// });
-
-// let history = [Array(9).fill(null)];
-// let xIsNext = true;
-// let connectedPlayers = 0;
-
-// app.use(cors());
-
-// wss.on("connection", (ws) => {
-//     console.log("A user connected");
-
-//     if (connectedPlayers < 2) {
-//         connectedPlayers++;
-//         ws.player = connectedPlayers === 1 ? 'X' : 'O';
-//         console.log(`Player ${ws.player} connected`);
-
-//         ws.send(JSON.stringify({ type: "init", data: { history, xIsNext, player: ws.player } }));
-//     } else {
-//         console.log("Max players reached, disconnecting");
-//         ws.close();
-//     }
-
-//     ws.on("message", (message) => {
-//         console.log("Message received:", message);
-//         // Handle incoming messages here
-//     });
-
-//     ws.on("close", () => {
-//         console.log("User disconnected");
-//         connectedPlayers--;
-//     });
-// });
-
-// server.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
-// });
-
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
@@ -61,51 +11,92 @@ app.get("/", (req, res) => {
     res.send("api socket");
 });
 
-
 const PORT = process.env.PORT || 4000;
 
 let history = [Array(9).fill(null)];
 let xIsNext = true;
 let connectedPlayers = 0;
+let players = [];
+let playerMoves = {
+    'X': [],
+    'O': []
+};
 
 app.use(cors());
 
 io.on("connection", (socket) => {
     console.log("A user connected");
 
-    if (connectedPlayers < 2) {
-        connectedPlayers++;
-        socket.player = connectedPlayers === 1 ? 'X' : 'O';
-        console.log(`Player ${socket.player} connected`);
-
-        socket.emit("init", { history, xIsNext, player: socket.player }); // Emitir el evento init solo al socket que se conectó
-    } else {
+    if (connectedPlayers >= 2) {
         console.log("Max players reached, disconnecting");
         socket.disconnect();
+        return;
     }
+
+    connectedPlayers++;
+    let playerType = connectedPlayers === 1 ? 'X' : 'O';
+    if (connectedPlayers === 2 && players.length > 0 && players[0].player === playerType) {
+        playerType = playerType === 'X' ? 'O' : 'X';
+    }
+    socket.player = playerType;
+    console.log(`Player ${socket.player} connected`);
+
+    players.push({ id: socket.id, player: playerType });
+
+    socket.emit("init", { history, xIsNext, player: socket.player });
 
     socket.on("move", (i) => {
         console.log("Movimiento recibido desde el cliente:", i);
-        const current = history[history.length - 1].slice();
-
-        // Verificar si el movimiento es válido y si es el turno del jugador
-        if (!calculateWinner(current) && !current[i] && ((xIsNext && socket.player === 'X') || (!xIsNext && socket.player === 'O'))) {
+        const current = [...history[history.length - 1]]; // Clonar el último tablero
+    
+        if (!calculateWinner(current) && ((xIsNext && socket.player === 'X') || (!xIsNext && socket.player === 'O'))) {
+    
+            // Almacena el movimiento del jugador
+            playerMoves[socket.player].push(i);
+            if (playerMoves[socket.player].length > 3) {
+                const moveToRemove = playerMoves[socket.player].shift(); // Eliminar el último movimiento del historial
+                current[moveToRemove] = null; // Eliminar el último movimiento del tablero actual
+            }
             current[i] = xIsNext ? 'X' : 'O';
-            history.push(current); // Añadir el nuevo movimiento al historial
-            xIsNext = !xIsNext; // Cambiar el turno del jugador
-            io.emit("move", { history, xIsNext }); // Enviar el estado actualizado a todos los clientes
+            xIsNext = !xIsNext;
+    
+            // Actualizar el historial con el último tablero
+            history[history.length - 1] = current;
+    
+            // Envía los historiales actualizados después de cada movimiento
+            io.emit("move", { history, xIsNext, playerMoves });
+    
             const winner = calculateWinner(current);
             if (winner) {
-                io.emit("winner", { winnerSquares: calculateWinnerSquares(current) });
+                io.emit("winner", { winner, winnerSquares: calculateWinnerSquares(current) });
+    
+                setTimeout(() => {
+                    console.log("Restarting the game");
+                    history = [Array(9).fill(null)];
+                    xIsNext = true;
+                    playerMoves['X'] = [];
+                    playerMoves['O'] = [];
+                    io.emit("gameRestarted", { history, xIsNext, playerMoves });
+                }, 5000);
             }
         }
-        console.log(history, current)
     });
+    
 
+
+    socket.on("restart", () => {
+        console.log("Restarting the game");
+        history = [Array(9).fill(null)];
+        xIsNext = true;
+        playerMoves['X'] = [];
+        playerMoves['O'] = [];
+        io.emit("gameRestarted", { history, xIsNext, playerMoves });
+    });
 
     socket.on("disconnect", () => {
         console.log("User disconnected");
         connectedPlayers--;
+        players = players.filter(p => p.id !== socket.id);
     });
 });
 
